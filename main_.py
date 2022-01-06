@@ -1,14 +1,14 @@
-import sqlalchemy
+from sqlalchemy import create_engine
 import pandas as pd
 from sqlalchemy.orm import sessionmaker
 import requests
 import json
 from datetime import datetime
 import datetime
-import sqlite3
+import sys
+import psycopg2
 
-USER_ID = '227dt3g18rrzyco2j7p2boy2ly'
-TOKEN = 'BQDOWRoglEfMv0XYe89somIvBubBTAVL6JqFm-BpGxKCZMRj48JOfVlABcGtG5NBaD_UL_WP61_0fZDeaLUBSxI8vQQWzgmEptnms1wl7NTi90-cK8I56nlPVthvifi7-hD5D9xBvn1SzSjvDglTnzvNDjk6Zpj58kTkyghu'
+TOKEN = 'BQATPRglDxteziDk2a8XbWnCxE2E4HTgdR1Gl1Ryz_FgHFgkpwJW6OLYrWldQJQJ5JzircSjpgawF0ZYdHlKy_zd1uKKXzTedFgm_maMhdJyZTk8UpoAna3PhGL3VhPS5wfs9yYlX3sfKKPxLBJBsj_gJuqTcj0osyJ-d2JP'
 
 if KeyError == True:
     print("The token has expired")
@@ -68,7 +68,22 @@ else:
             df['time'] = pd.to_timedelta(df['time'])
             df['played_at'] = pd.to_datetime(df['played_at'])
             df['played_at'] = df['played_at'].dt.tz_localize('US/Central')
-            ## df['played_at'] = df['played_at'].dt.strftime("%d/%m/%y")
             
             df.to_csv(r'C:\\Users\\Cesal\\projects\\spotify\\export_dataframe.csv', index = False, header = True)
-            print(df)
+            # print(df) 
+            
+            #SQL
+            conn = psycopg2.connect(host='127.0.0.1',port='5432',dbname='Athenas',user='postgres',password='cis15a')
+            cur = conn.cursor()
+            print('Connected')
+            cur.execute('''INSERT INTO MUSIC (artist_id,artist_name,artist_link,album_id,album_name,album_link,song_id,song_name,song_link,duration_ms,popularity,disc_number,played_at), VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'''),
+            
+            
+            
+            # cur.execute("SELECT * FROM departments")
+            
+            # cur = conn.cursor()
+            # engine = create_engine('postgresql+psycopg2://@/')
+            # conn_eng = engine.raw_connection()
+            # cur_eng = conn_eng.cursor()
+            
