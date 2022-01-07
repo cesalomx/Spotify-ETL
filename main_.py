@@ -9,7 +9,7 @@ import sqlalchemy as sa
 # import sys
 import psycopg2
 
-TOKEN = 'BQCDAdCnhoja1YT2nbwHqJx6vn7ikT0Qf5XlnjrD8wPtWhDFtNnMvWnTr7y6O_qAAUonjSf_3f6sR2W4mAbeoUHAuni5HUxOiE101uoQgaKC7V5FXR4XE7FbybJQwkHTFCa2sjEJgnvH-qir-E1O7QN26zHtdlNvHryrmhLr"'
+TOKEN = 'BQAAVG1W8t-qVVIF0Yu0d6eG_lwRIExIsKXJhMm-KZraZOrVNJKSbmBwADAOOQfbI1VT46mt4aQDrLWfOttNXXAA2PipmT7hZpQg0_1wLnOoCEXulsS5xW7YXKL3w86MYobEhWtoRE7rZ3snlMw9ZtgCxNl80xeT6hGpbjsC'
 
 #We need headers to send the information along with our request, so this should be part of our request.
 headers = {
@@ -84,10 +84,9 @@ else:
     print(db_version)
 
     #Creating the "Spotify_API" table in PostgreSQL using the psycopg2 library.
-    table = (
-        """        
-        CREATE TABLE IF NOT EXISTS Spotify_API(
+    table_py = '''CREATE TABLE IF NOT EXISTS spotify(
         unique_identifier SERIAL PRIMARY KEY,
+        artist_id VARCHAR(255) NOT NULL,
         artist_link VARCHAR(255) NOT NULL,
         album_id VARCHAR(255) NOT NULL,
         album_name VARCHAR(255) NULL,
@@ -95,24 +94,21 @@ else:
         song_id VARCHAR(255) NOT NULL,
         song_name VARCHAR(255) NOT NULL,
         song_link VARCHAR(255) NOT NULL,
-        duration INT NOT NULL,
+        duration_ms INT NOT NULL,
         popularity INT NULL,
         disc_number INT NULL,
         played_at TIMESTAMP NOT NULL,
         date DATE NOT NULL,
         time TIME NOT NULL
-        )
-        """)
+        )'''
 #Executing my "table" using my cur variable.
-    cur.execute(table)
-    if table:
-        print("The Spotify_API Table was created  if it wasn't :)")
-    else:
-        print('error')
+    cur.execute(table_py)
+    print('Table created succesfully')
+
 #In order to load my existing dataframe to the table we previously created using the psycopg2 library, 
-#we now need to create an engine using SQLALCHEMY and APPEND my dataframe to the Spotify_API Table.        
+#we now need to create an engine using SQLALCHEMY and APPEND my dataframe to the spotify_API Table.        
     engine = sa.create_engine('postgresql://postgres:cis15a@localhost:5432/Athenas')
-    df.to_sql('Spotify_API', con = engine, index=False, if_exists='append')
+    df.to_sql('spotify', con = engine, index=False, if_exists='append')
     
     print('The ETL ran succesfully')
     cur.close()
