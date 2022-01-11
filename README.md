@@ -13,3 +13,6 @@ The transformation of my dataframe consisted of some basic checks here and there
 
 ## Loading to PostgreSQL
 Now that we are done with our basic checks using pandas, we use the [psycopg2](https://pypi.org/project/psycopg2/) library to create a connection to an existing database in postgreSQL, starting by creating a table with a *unique_identifier* along with our key values according to what we've got in our DataFrame. Last but no least, in order to load the Dataframe to our table called *spotify*, we have to create an engine using the *sqlalchemy* libray to append my existing dataframe to such table.
+
+
+![database_output_image](https://user-images.githubusercontent.com/63975528/148864777-53c10231-4d37-4425-bd96-7e968b8385fd.jpg)
