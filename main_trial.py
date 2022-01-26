@@ -3,13 +3,12 @@ import pandas as pd
 import requests
 import sqlalchemy as sa
 import psycopg2
-import modulo1
 
 if __name__ == "__main__":
     
     def extraction():
         
-        TOKEN = 'BQBO6rHoauhrh3jhJ1-K-P9fil25Vu7pHvbMoVQFG_j0vxn4glCxLPbQ_1WHIR_WNnS72naTFfJWWpjDWwn1zmZIAUHMkluUL945WakcdbAOr-3xndX9vpkCUdCfGYmsUfomTKrcOIYWwD9U9PS8EiTpaF3HcT6gePiQh-fW'
+        TOKEN = 'BQAsHgoVPdj_C4rc4Tue4BEk2Gfsn94bkgAHESWyzUfKKN-IpK48I9YyNp-89fSWT9gSsv4HNIxTiWBI74GT3vu-eH2NcIS6XmgSEJeMd4PPNzCv402W_oNHvB3ert2mkcT6YV8J-V7bR3glb971fuvBtB6FCLJjQS4Jtyby'
 
         #We need headers to send the information along with our request, so this should be part of our request.
         headers = {
@@ -26,6 +25,7 @@ if __name__ == "__main__":
         else:
         #if my response went smoothly, then we proceed to extract and loop through my .json dictionary and get the values from it.
             my_song_list = []
+            global df
 
             for song in response['items']:
                 artist_id = song['track']['artists'][0]['id']
@@ -58,6 +58,7 @@ if __name__ == "__main__":
                                 }
                 
                 my_song_list.append(song_dic) #now, in order to convert my DICTIONARY to a DATAFRAME, I should consider appending it to a LIST first.
+                
                 df = pd.DataFrame(my_song_list) #now that all my songs are in a LIST datatype, I can convert it to a dataframe.
                 
         #This is a basic transformation performed in my dataframe:
@@ -71,7 +72,78 @@ if __name__ == "__main__":
         df['time'] = pd.to_datetime(df['time'])
         df['played_at'] = pd.to_datetime(df['played_at'])
         df['played_at'] = df['played_at'].dt.tz_localize('US/Central')
-    
+        
+        return df
+
+    def loading():
+        
+            
+        #psycopg2 is only used when connecting to a PostgreSQL Database, so we first make contact by setting some basic info.
+        conn = psycopg2.connect(host='127.0.0.1',port='5432',dbname='Athenas',user='postgres',password='cis15a')
+        #Creating a cursor to display my PostgreSQL Version
+        cur = conn.cursor()
+        print('=============================================================')
+        print('Connected to Athenas')
+        print('PostgreSQL database version:')
+        print("=============================================================")
+        cur.execute('SELECT version()')
+        db_version = cur.fetchone()
+        print(db_version)
+
+        #Creating the "Spotify_API" table in PostgreSQL using the psycopg2 library.
+        table_py = '''CREATE TABLE IF NOT EXISTS spotify(
+            unique_identifier SERIAL PRIMARY KEY,
+            artist_id VARCHAR(255) NOT NULL,
+            artist_link VARCHAR(255) NOT NULL,
+            album_id VARCHAR(255) NOT NULL,
+            album_name VARCHAR(255) NULL,
+            album_link VARCHAR(255) NOT NULL,
+            song_id VARCHAR(255) NOT NULL,
+            song_name VARCHAR(255) NOT NULL,
+            song_link VARCHAR(255) NOT NULL,
+            duration_ms INT NOT NULL,
+            popularity INT NULL,
+            disc_number INT NULL,
+            played_at TIMESTAMP NOT NULL,
+            date DATE NOT NULL,
+            time TIME NOT NULL
+            )'''
+        #Executing my "table" using my cur variable.
+        cur.execute(table_py)
+        if cur.execute(table_py) == True:
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print('Table created succesfully')
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+        else:
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("Something came up with your database")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+            print("=============================================================")
+        #In order to load my existing dataframe to the table we previously created using the psycopg2 library, 
+        #we now need to create an engine using SQLALCHEMY and APPEND my dataframe to the spotify_API Table.        
+        engine = sa.create_engine('postgresql://postgres:cis15a@localhost:5432/Athenas')
+        df.to_sql('spotify', con = engine, index=False, if_exists='append')
+        print("=============================================================")
+        print("=============================================================")
+        print('The ETL ran succesfully')
+        print("=============================================================")
+        print("=============================================================")
+        cur.close()
+        conn.commit()
+
     extraction()
-    
-    modulo1.loading()
+    loading()
